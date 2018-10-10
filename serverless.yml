@@ -1,4 +1,4 @@
-service: ssr-react-swapi-service
+service: ffapi-service
 
 provider:
   name: aws
@@ -53,6 +53,20 @@ custom:
     stage: ${self:provider.stage}
     createRoute53Record: true
     certificateName: '*.kalalau-cantrell.me'
+  dynamodb:
+    start:
+      port: 8000
+      # inMemory: true
+      migrate: true
+      seed: true
+      # convertEmptyValues: true
+    seed:
+      ffapi:
+        sources:
+          - table: ${self:custom.CHARACTERS_TABLE}
+            sources: [./data/characters.json]
+          - table: ${self:custom.GAMES_TABLE}
+            sources: [./data/games.json]
 
 webpack:
   webpackConfig: ./webpack.config.js
@@ -69,12 +83,6 @@ resources:
         AttributeDefinitions:
           - AttributeName: name
             AttributeType: S
-          - AttributeName: game
-            AttributeType: S
-          - AttributeName: hometown
-            AttributeType: S
-          - AttributeName: weapon
-            AttributeType: S
         KeySchema:
           - AttributeName: name
             KeyType: HASH
@@ -88,14 +96,8 @@ resources:
         AttributeDefinitions:
           - AttributeName: name
             AttributeType: S
-          - AttributeName: game
-            AttributeType: S
-          - AttributeName: hometown
-            AttributeType: S
-          - AttributeName: weapon
-            AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: name
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
