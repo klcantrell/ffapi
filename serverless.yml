@@ -1,0 +1,102 @@
+service: ssr-react-swapi-service
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: us-east-2
+  timeout: 150
+
+functions:
+  app:
+    handler: server.main
+    events:
+      - http:
+          path: /
+          method: ANY
+        cors: true
+      - http:
+          path: /{proxy+}
+          method: ANY
+        cors: true
+    environment:
+      CHARACTERS_TABLE: ${self:custom.CHARACTERS_TABLE}
+      GAMES_TABLE: ${self:custom.GAMES_TABLE}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DescribeTable
+          - dynamodb:Query
+          - dynamodb:Scan
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+          - dynamodb:DeleteItem
+        # Restrict our IAM role permissions to
+        # the specific table for the stage
+        Resource:
+          - 'Fn::GetAtt': [CharactersTable, Arn]
+          - 'Fn::GetAtt': [GamesTable, Arn]
+
+plugins:
+  - serverless-domain-manager
+  - serverless-webpack
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+  CHARACTERS_TABLE: ff_characters
+  GAMES_TABLE: ff_games
+  customDomain:
+    domainName: ffapi.kalalau-cantrell.me
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+    certificateName: '*.kalalau-cantrell.me'
+
+webpack:
+  webpackConfig: ./webpack.config.js
+  includeModules:
+    forceExclude:
+      - aws-sdk
+
+resources:
+  Resources:
+    CharactersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.CHARACTERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: name
+            AttributeType: S
+          - AttributeName: game
+            AttributeType: S
+          - AttributeName: hometown
+            AttributeType: S
+          - AttributeName: weapon
+            AttributeType: S
+        KeySchema:
+          - AttributeName: name
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    GamesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.GAMES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: name
+            AttributeType: S
+          - AttributeName: game
+            AttributeType: S
+          - AttributeName: hometown
+            AttributeType: S
+          - AttributeName: weapon
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
