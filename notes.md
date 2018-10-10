@@ -37,7 +37,14 @@ dynamodb.getItem(params, function(err, data) {
 ```javascript
 const params = {
   TableName: 'ff_characters',
-  ConsistentRead: false, // optional (true | false)
+  ExpressionAttributeNames: {
+    // a map of substitutions for attribute names with special characters
+    '#name': 'name',
+    '#game': 'game',
+    '#hometown': 'hometown',
+    '#weapon': 'weapon',
+  },
+  ProjectionExpression: '#name, #hometown, #weapon, #game',
 };
 dynamodb.scan(params, function(err, data) {
   if (err) ppJson(err);
@@ -51,15 +58,21 @@ dynamodb.scan(params, function(err, data) {
 ```javascript
 const params = {
   TableName: 'ff_characters',
-  FilterExpression: 'game = :value', // a string representing a constraint on the attribute
+  FilterExpression: '#game = :value', // a string representing a constraint on the attribute
+  ExpressionAttributeNames: {
+    // a map of substitutions for attribute names with special characters
+    '#name': 'name',
+    '#game': 'game',
+    '#hometown': 'hometown',
+    '#weapon': 'weapon',
+  },
   ExpressionAttributeValues: {
     // a map of substitutions for all attribute values
     ':value': {
       S: 'FF7',
     },
   },
-  Select: 'ALL_ATTRIBUTES', // optional (ALL_ATTRIBUTES | ALL_PROJECTED_ATTRIBUTES |
-  //           SPECIFIC_ATTRIBUTES | COUNT)
+  ProjectionExpression: '#name, #hometown, #weapon, #game',
 };
 dynamodb.scan(params, function(err, data) {
   if (err) ppJson(err);
