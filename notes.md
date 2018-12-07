@@ -1,3 +1,30 @@
+## document client
+
+```javascript
+const params = {
+  TableName: 'ff_characters',
+  Key: {
+    id: characterId,
+  },
+  AttributesToGet: [
+    'name',
+    'hometown',
+    'weapon',
+    'game',
+  ],
+  ConsistentRead: false, // optional (true | false)
+  ReturnConsumedCapacity: 'NONE', // optional (NONE | TOTAL | INDEXES)
+};
+dynamodb.get(params, function(err, data) {
+  if (err) {
+    res.send({ error: err });
+  } else {
+    res.send({ data });
+  }
+});
+```
+
+
 ## dynamodb local shell
 
 ###getItem
@@ -8,8 +35,8 @@ const params = {
   Key: {
     // a map of attribute name to AttributeValue for all primary key attributes
 
-    name: {
-      S: 'Cloud Strife',
+    id: {
+      S: 'cloud_strife',
     },
     //(string | number | boolean | null | Binary)
     // more attributes...

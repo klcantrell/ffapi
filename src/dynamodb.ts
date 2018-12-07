@@ -7,4 +7,6 @@ if (process.env.IS_OFFLINE) {
     endpoint: 'http://localhost:8000',
   };
 }
-export const client = new AWS.DynamoDB.DocumentClient(options);
+const client = new AWS.DynamoDB.DocumentClient(options);
+
+export default client;
