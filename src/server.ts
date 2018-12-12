@@ -1,48 +1,50 @@
 import express from 'express';
 import awsServerlessExpress from 'aws-serverless-express';
+import { DataMapper } from '@aws/dynamodb-data-mapper';
+import { attribute, hashKey, table } from '@aws/dynamodb-data-mapper-annotations';
+
 import dynamodb from './dynamodb';
 
 const app = express();
+const mapper = new DataMapper({ client: dynamodb });
 
-app.get('/characters', (req, res) => {
-  const params = {
-    TableName: 'ff_characters',
-    ExpressionAttributeNames: {
-      '#name': 'name',
-      '#game': 'game',
-      '#hometown': 'hometown',
-      '#weapon': 'weapon',
-    },
-    ProjectionExpression: '#name, #hometown, #weapon, #game',
-  };
-  dynamodb.scan(params, function(err, data) {
-    if (err) res.send({ error: err })
-    else res.send({ data });
-  });
+@table('ff_characters')
+class CharacterModel {
+  @hashKey()
+  id?: number;
+
+  @attribute()
+  name?: string;
+
+  @attribute()
+  game?: string;
+
+  @attribute()
+  hometown?: string;
+
+  @attribute()
+  weapon?: string;
+
+  @attribute()
+  type?: string;
+}
+
+
+app.get('/characters', async (req, res) => {
+  let data = [];
+  const iterator = mapper.scan(CharacterModel);
+  for await (const record of iterator) {
+    data.push(record);
+  }
+  res.send({ data });
 });
 
-app.get('/characters/:id', (req, res) => {
+app.get('/characters/:id', async (req, res) => {
   const characterId = req.params.id;
-  const params = {
-    TableName: 'ff_characters',
-    Key: {
-      id: {
-        N: characterId
-      }
-    },
-    AttributesToGet: [
-      'name',
-      'hometown',
-      'weapon',
-      'game',
-    ],
-    ConsistentRead: false,
-    ReturnConsumedCapacity: 'NONE',
-  };
-  dynamodb.getItem(params, function(err, data) {
-    if (err) res.send({ error: err })
-    else res.send({ data });
-  });
+  const toGet = new CharacterModel();
+  toGet.id = characterId;
+  const data = await mapper.get(toGet);
+  res.send({ data })
 });
 
 const server = awsServerlessExpress.createServer(app);
