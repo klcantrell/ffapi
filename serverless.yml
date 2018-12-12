@@ -78,7 +78,7 @@ resources:
         TableName: ${self:custom.CHARACTERS_TABLE}
         AttributeDefinitions:
           - AttributeName: id
-            AttributeType: S
+            AttributeType: N
         KeySchema:
           - AttributeName: id
             KeyType: HASH
@@ -90,10 +90,10 @@ resources:
       Properties:
         TableName: ${self:custom.GAMES_TABLE}
         AttributeDefinitions:
-          - AttributeName: name
-            AttributeType: S
+          - AttributeName: id
+            AttributeType: N
         KeySchema:
-          - AttributeName: name
+          - AttributeName: id
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
