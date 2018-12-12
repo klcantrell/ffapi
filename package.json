@@ -39,6 +39,8 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "@aws/dynamodb-data-mapper": "^0.7.3",
+    "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
     "express": "^4.16.3"
   }
 }
