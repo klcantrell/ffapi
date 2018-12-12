@@ -2,13 +2,11 @@
   {
     "id": 1,
     "name": "FF7",
-    "release_date": 1997,
-    "type": "game"
+    "release_date": 1997
   },
   {
     "id": 2,
     "name": "FF8",
-    "release_date": 1999,
-    "type": "game"
+    "release_date": 1999
   }
 ]
