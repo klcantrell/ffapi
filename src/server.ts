@@ -4,12 +4,31 @@ import dynamodb from './dynamodb';
 
 const app = express();
 
-app.get('/character/:id', (req, res) => {
+app.get('/characters', (req, res) => {
+  const params = {
+    TableName: 'ff_characters',
+    ExpressionAttributeNames: {
+      '#name': 'name',
+      '#game': 'game',
+      '#hometown': 'hometown',
+      '#weapon': 'weapon',
+    },
+    ProjectionExpression: '#name, #hometown, #weapon, #game',
+  };
+  dynamodb.scan(params, function(err, data) {
+    if (err) res.send({ error: err })
+    else res.send({ data });
+  });
+});
+
+app.get('/characters/:id', (req, res) => {
   const characterId = req.params.id;
   const params = {
     TableName: 'ff_characters',
     Key: {
-      id: characterId,
+      id: {
+        N: characterId
+      }
     },
     AttributesToGet: [
       'name',
@@ -20,7 +39,7 @@ app.get('/character/:id', (req, res) => {
     ConsistentRead: false,
     ReturnConsumedCapacity: 'NONE',
   };
-  dynamodb.get(params, function(err, data) {
+  dynamodb.getItem(params, function(err, data) {
     if (err) res.send({ error: err })
     else res.send({ data });
   });
