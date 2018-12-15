@@ -41,6 +41,9 @@
   "dependencies": {
     "@aws/dynamodb-data-mapper": "^0.7.3",
     "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
-    "express": "^4.16.3"
+    "apollo-server-express": "^2.3.1",
+    "express": "^4.16.3",
+    "gql": "^1.1.2",
+    "graphql": "^14.0.2"
   }
 }
