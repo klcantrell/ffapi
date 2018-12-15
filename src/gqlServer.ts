@@ -1,9 +1,16 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { getAllCharacters, getCharacter } from './dynamodb';
 
+interface ICharacter {
+  id: number;
+}
+
+interface IParent {}
+
 const typeDefs = gql`
   type Query {
     characters: [Character]!
+    character(id: Int!): Character
   }
 
   type Character {
@@ -17,7 +24,10 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    characters: () => getAllCharacters()
+    characters: () => getAllCharacters(),
+    character: (_: IParent, { id }: ICharacter) => {
+      return getCharacter(id);
+    }
   }
 }
 
