@@ -56,7 +56,7 @@ async function getCharacter(characterId: number) {
   const toGet = new CharacterModel();
   toGet.id = characterId;
   const data = await mapper.get(toGet);
-  return data;
+  return [ data ];
 }
 
 async function getAllGames() {
@@ -72,7 +72,7 @@ async function getGame(gameId: number) {
   const toGet = new GameModel();
   toGet.id = gameId;
   const data = await mapper.get(toGet);
-  return data;
+  return [ data ];
 }
 
 export { getAllCharacters, getCharacter, getAllGames, getGame };
