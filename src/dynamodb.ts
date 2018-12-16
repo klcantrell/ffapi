@@ -31,6 +31,18 @@ class CharacterModel {
   weapon?: string;
 }
 
+@table('ff_games')
+class GameModel {
+  @hashKey()
+  id?: number;
+
+  @attribute()
+  name?: string;
+
+  @attribute()
+  release_date?: number;
+}
+
 async function getAllCharacters() {
   let data = [];
   const iterator = mapper.scan(CharacterModel);
@@ -47,4 +59,20 @@ async function getCharacter(characterId: number) {
   return data;
 }
 
-export { getAllCharacters, getCharacter };
+async function getAllGames() {
+  let data = [];
+  const iterator = mapper.scan(GameModel);
+  for await (const record of iterator) {
+    data.push(record);
+  }
+  return data;
+}
+
+async function getGame(gameId: number) {
+  const toGet = new GameModel();
+  toGet.id = gameId;
+  const data = await mapper.get(toGet);
+  return data;
+}
+
+export { getAllCharacters, getCharacter, getAllGames, getGame };

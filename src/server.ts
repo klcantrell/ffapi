@@ -2,7 +2,7 @@ import express from 'express';
 import awsServerlessExpress from 'aws-serverless-express';
 
 import gqlServer from './gqlServer';
-import { getAllCharacters, getCharacter } from './dynamodb';
+import { getAllCharacters, getCharacter, getAllGames, getGame } from './dynamodb';
 
 const app = express();
 gqlServer.applyMiddleware({ app });
@@ -14,6 +14,16 @@ app.get('/characters', async (req, res) => {
 
 app.get('/characters/:id', async (req, res) => {
   const data = await getCharacter(req.params.id);
+  res.send({ data });
+});
+
+app.get('/games', async (req, res) => {
+  const data = await getAllGames();
+  res.send({ data });
+});
+
+app.get('/games/:id', async (req, res) => {
+  const data = await getGame(req.params.id);
   res.send({ data });
 });
 
