@@ -1,7 +1,7 @@
 import { ApolloServer, gql } from 'apollo-server-express'
-import { getAllCharacters, getCharacter } from './dynamodb';
+import { getAllCharacters, getCharacter, getGame, getAllGames } from './dynamodb';
 
-interface ICharacterArgs {
+interface IQueryArgs {
   id: number;
 }
 
@@ -10,6 +10,7 @@ interface IParent {}
 const typeDefs = gql`
   type Query {
     characters(id: Int): [Character]!
+    games(id: Int): [Game]!
   }
 
   type Character {
@@ -19,15 +20,21 @@ const typeDefs = gql`
     hometown: String
     weapon: String
   }
+
+  type Game {
+    id: Int
+    name: String
+    release_date: String
+  }
 `;
 
 const resolvers = {
   Query: {
-    characters: (_: IParent, { id }: ICharacterArgs) => {
-      if (id) {
-        return getCharacter(id);
-      }
-      return getAllCharacters();
+    characters: (_: IParent, { id }: IQueryArgs) => {
+      return id ? getCharacter(id) : getAllCharacters();
+    },
+    games: (_: IParent, { id }: IQueryArgs) => {
+      return id ? getGame(id) : getAllGames();
     }
   }
 }
