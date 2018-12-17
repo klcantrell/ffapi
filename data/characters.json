@@ -2,28 +2,40 @@
   {
     "id": 1,
     "name": "Cloud Strife",
-    "game": "FF7",
+    "game": {
+      "id": 1,
+      "name": "FF7"
+    },
     "hometown": "Nibelheim",
     "weapon": "Buster Sword"
   },
   {
     "id": 2,
     "name": "Tifa Lockhart",
-    "game": "FF7",
+    "game": {
+      "id": 1,
+      "name": "FF7"
+    },
     "hometown": "Nibelheim",
     "weapon": "Leather Gloves"
   },
   {
     "id": 3,
     "name": "Squall Leonhart",
-    "game": "FF8",
+    "game": {
+      "id": 2,
+      "name": "FF8"
+    },
     "hometown": "Balamb",
     "weapon": "Gunblade"
   },
   {
     "id": 4,
     "name": "Rinoa Heartilly",
-    "game": "FF8",
+    "game": {
+      "id": 2,
+      "name": "FF8"
+    },
     "hometown": "Deling City",
     "weapon": "Blaster Edge"
   }

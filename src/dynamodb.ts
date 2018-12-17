@@ -13,6 +13,11 @@ if (process.env.IS_OFFLINE) {
 const client = new AWS.DynamoDB(options);
 const mapper = new DataMapper({ client });
 
+interface IGameData {
+  id: number
+  name: string
+}
+
 @table('ff_characters')
 class CharacterModel {
   @hashKey()
@@ -22,7 +27,7 @@ class CharacterModel {
   name?: string;
 
   @attribute()
-  game?: string;
+  game!: IGameData;
 
   @attribute()
   hometown?: string;
@@ -47,7 +52,14 @@ async function getAllCharacters() {
   let data = [];
   const iterator = mapper.scan(CharacterModel);
   for await (const record of iterator) {
-    data.push(record);
+    const recordWithIdAsNumber = {
+      ...record,
+      game: {
+        id: Number(record.game.id),
+        name: record.game.name
+      }, 
+    };
+    data.push(recordWithIdAsNumber);
   }
   return data;
 }
