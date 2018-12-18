@@ -1,6 +1,10 @@
 import AWS from 'aws-sdk';
 import { DataMapper } from '@aws/dynamodb-data-mapper';
-import { attribute, hashKey, table } from '@aws/dynamodb-data-mapper-annotations';
+import {
+  attribute,
+  hashKey,
+  table,
+} from '@aws/dynamodb-data-mapper-annotations';
 
 let options = {};
 if (process.env.IS_OFFLINE) {
@@ -14,8 +18,8 @@ const client = new AWS.DynamoDB(options);
 const mapper = new DataMapper({ client });
 
 interface IGameData {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
 @table('ff_characters')
@@ -56,8 +60,8 @@ async function getAllCharacters() {
       ...record,
       game: {
         id: Number(record.game.id),
-        name: record.game.name
-      }, 
+        name: record.game.name,
+      },
     };
     data.push(recordWithIdAsNumber);
   }
@@ -67,8 +71,15 @@ async function getAllCharacters() {
 async function getCharacter(characterId: number) {
   const toGet = new CharacterModel();
   toGet.id = characterId;
-  const data = await mapper.get(toGet);
-  return [ data ];
+  const record = await mapper.get(toGet);
+  const recordWithIdAsNumber = {
+    ...record,
+    game: {
+      id: Number(record.game.id),
+      name: record.game.name,
+    },
+  };
+  return [recordWithIdAsNumber];
 }
 
 async function getAllGames() {
@@ -84,7 +95,7 @@ async function getGame(gameId: number) {
   const toGet = new GameModel();
   toGet.id = gameId;
   const data = await mapper.get(toGet);
-  return [ data ];
+  return [data];
 }
 
 export { getAllCharacters, getCharacter, getAllGames, getGame };
