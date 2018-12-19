@@ -2,7 +2,12 @@ import express from 'express';
 import awsServerlessExpress from 'aws-serverless-express';
 
 import gqlServer from './gqlServer';
-import { getAllCharacters, getCharacter, getAllGames, getGame } from './dynamodb';
+import {
+  getAllCharacters,
+  getCharacter,
+  getAllGames,
+  getGame,
+} from './dynamodb';
 
 const app = express();
 gqlServer.applyMiddleware({ app });
@@ -31,3 +36,5 @@ const server = awsServerlessExpress.createServer(app);
 
 export const main = (event: any, context: any) =>
   awsServerlessExpress.proxy(server, event, context);
+
+export { app };
