@@ -1,10 +1,9 @@
 import AWS from 'aws-sdk';
-import { DataMapper } from '@aws/dynamodb-data-mapper';
 import {
-  attribute,
-  hashKey,
-  table,
-} from '@aws/dynamodb-data-mapper-annotations';
+  DataMapper,
+  DynamoDbSchema,
+  DynamoDbTable,
+} from '@aws/dynamodb-data-mapper';
 
 let options = {};
 if (process.env.IS_OFFLINE) {
@@ -17,40 +16,53 @@ if (process.env.IS_OFFLINE) {
 const client = new AWS.DynamoDB(options);
 const mapper = new DataMapper({ client });
 
-interface IGameData {
-  id: number;
-  name: string;
-}
+class CharacterModel {}
 
-@table('ff_characters')
-class CharacterModel {
-  @hashKey()
-  id?: number;
+Object.defineProperties(CharacterModel.prototype, {
+  [DynamoDbTable]: {
+    value: 'ff_characters',
+  },
+  [DynamoDbSchema]: {
+    value: {
+      id: {
+        type: 'Number',
+        keyType: 'HASH',
+      },
+      name: { type: 'String' },
+      game: {
+        type: 'Any',
+        members: {
+          id: {
+            type: 'Number',
+          },
+          name: {
+            type: 'String',
+          },
+        },
+      },
+      hometown: { type: 'String' },
+      weapon: { type: 'String' },
+    },
+  },
+});
 
-  @attribute()
-  name?: string;
+class GameModel {}
 
-  @attribute()
-  game!: IGameData;
-
-  @attribute()
-  hometown?: string;
-
-  @attribute()
-  weapon?: string;
-}
-
-@table('ff_games')
-class GameModel {
-  @hashKey()
-  id?: number;
-
-  @attribute()
-  name?: string;
-
-  @attribute()
-  release_date?: number;
-}
+Object.defineProperties(GameModel.prototype, {
+  [DynamoDbTable]: {
+    value: 'ff_games',
+  },
+  [DynamoDbSchema]: {
+    value: {
+      id: {
+        type: 'Number',
+        keyType: 'HASH',
+      },
+      name: { type: 'String' },
+      release_date: { type: 'String' },
+    },
+  },
+});
 
 async function getAllCharacters() {
   let data = [];
@@ -68,7 +80,7 @@ async function getAllCharacters() {
   return data;
 }
 
-async function getCharacter(characterId: number) {
+async function getCharacter(characterId) {
   const toGet = new CharacterModel();
   toGet.id = characterId;
   const record = await mapper.get(toGet);
@@ -91,7 +103,7 @@ async function getAllGames() {
   return data;
 }
 
-async function getGame(gameId: number) {
+async function getGame(gameId) {
   const toGet = new GameModel();
   toGet.id = gameId;
   const data = await mapper.get(toGet);

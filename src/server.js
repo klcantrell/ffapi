@@ -34,7 +34,7 @@ app.get('/games/:id', async (req, res) => {
 
 const server = awsServerlessExpress.createServer(app);
 
-export const main = (event: any, context: any) =>
+export const main = (event, context) =>
   awsServerlessExpress.proxy(server, event, context);
 
 export { app };

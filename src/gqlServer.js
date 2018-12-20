@@ -1,30 +1,7 @@
 import { ApolloServer, gql } from 'apollo-server-express';
 import * as ffService from './dynamodb';
 
-interface IObjParam {
-  release_date: string;
-}
-
-interface IArgsParam {
-  id: number;
-}
-
-interface IContextParam {
-  ffService: {
-    getAllCharacters: Function;
-    getCharacter: Function;
-    getAllGames: Function;
-    getGame: Function;
-  };
-}
-
-interface IInfoParam {
-  fieldNodes: Array<{ selectionSet: { selections: any } }>;
-}
-
-interface IUnusedParams {}
-
-const typeDefs = gql`
+export const typeDefs = gql`
   union GameUnion = GameInfo | Game
 
   type Query {
@@ -52,9 +29,9 @@ const typeDefs = gql`
   }
 `;
 
-const resolvers = {
+export const resolvers = {
   GameUnion: {
-    __resolveType(obj: IObjParam) {
+    __resolveType(obj) {
       if (obj.release_date) {
         return 'Game';
       }
@@ -62,23 +39,18 @@ const resolvers = {
     },
   },
   Query: {
-    async characters(
-      _: IUnusedParams,
-      { id }: IArgsParam,
-      { ffService }: IContextParam,
-      info: IInfoParam
-    ) {
+    async characters(_, { id }, { ffService }, info) {
       const characterData = id
         ? await ffService.getCharacter(id)
         : await ffService.getAllCharacters();
       const queryGameSelection = info.fieldNodes[0].selectionSet.selections.find(
-        (selection: any) => {
+        selection => {
           return selection.name && selection.name.value === 'game';
         }
       );
       if (queryGameSelection) {
         const nestedGameQuery = queryGameSelection.selectionSet.selections.find(
-          (selection: any) => {
+          selection => {
             return (
               selection.typeCondition &&
               selection.typeCondition.name &&
@@ -87,25 +59,19 @@ const resolvers = {
           }
         );
         if (nestedGameQuery) {
-          const characterWithGameData = characterData.map(
-            async (character: any) => {
-              const [gameData] = await ffService.getGame(character.game.id);
-              return {
-                ...character,
-                game: gameData,
-              };
-            }
-          );
+          const characterWithGameData = characterData.map(async character => {
+            const [gameData] = await ffService.getGame(character.game.id);
+            return {
+              ...character,
+              game: gameData,
+            };
+          });
           return characterWithGameData;
         }
       }
       return characterData;
     },
-    async games(
-      _: IUnusedParams,
-      { id }: IArgsParam,
-      { ffService }: IContextParam
-    ) {
+    async games(_, { id }, { ffService }) {
       return id ? ffService.getGame(id) : ffService.getAllGames();
     },
   },
