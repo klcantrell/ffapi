@@ -1,24 +1,28 @@
 import { ApolloServer, gql } from 'apollo-server-express';
-import {
-  getAllCharacters,
-  getCharacter,
-  getGame,
-  getAllGames,
-} from './dynamodb';
+import * as ffService from './dynamodb';
 
-interface IQueryArgs {
+interface IObjParam {
+  release_date: string;
+}
+
+interface IArgsParam {
   id: number;
 }
 
-interface IUnusedParams {}
+interface IContextParam {
+  ffService: {
+    getAllCharacters: Function;
+    getCharacter: Function;
+    getAllGames: Function;
+    getGame: Function;
+  };
+}
 
 interface IInfoParam {
   fieldNodes: Array<{ selectionSet: { selections: any } }>;
 }
 
-interface IObjParam {
-  release_date: string;
-}
+interface IUnusedParams {}
 
 const typeDefs = gql`
   union GameUnion = GameInfo | Game
@@ -60,13 +64,13 @@ const resolvers = {
   Query: {
     async characters(
       _: IUnusedParams,
-      { id }: IQueryArgs,
-      __: IUnusedParams,
+      { id }: IArgsParam,
+      { ffService }: IContextParam,
       info: IInfoParam
     ) {
       const characterData = id
-        ? await getCharacter(id)
-        : await getAllCharacters();
+        ? await ffService.getCharacter(id)
+        : await ffService.getAllCharacters();
       const queryGameSelection = info.fieldNodes[0].selectionSet.selections.find(
         (selection: any) => {
           return selection.name && selection.name.value === 'game';
@@ -83,13 +87,15 @@ const resolvers = {
           }
         );
         if (nestedGameQuery) {
-          const characterWithGameData = characterData.map(async character => {
-            const [gameData] = await getGame(character.game.id);
-            return {
-              ...character,
-              game: gameData,
-            };
-          });
+          const characterWithGameData = characterData.map(
+            async (character: any) => {
+              const [gameData] = await ffService.getGame(character.game.id);
+              return {
+                ...character,
+                game: gameData,
+              };
+            }
+          );
           return characterWithGameData;
         }
       }
@@ -97,13 +103,16 @@ const resolvers = {
     },
     async games(
       _: IUnusedParams,
-      { id }: IQueryArgs,
-      __: IUnusedParams,
-      info: IInfoParam
+      { id }: IArgsParam,
+      { ffService }: IContextParam
     ) {
-      return id ? getGame(id) : getAllGames();
+      return id ? ffService.getGame(id) : ffService.getAllGames();
     },
   },
 };
 
-export default new ApolloServer({ typeDefs, resolvers });
+export default new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: { ffService },
+});
