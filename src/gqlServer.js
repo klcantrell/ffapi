@@ -81,4 +81,5 @@ export default new ApolloServer({
   typeDefs,
   resolvers,
   context: { ffService },
+  uploads: false,
 });
