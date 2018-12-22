@@ -1,12 +1,12 @@
-import { makeExecutableSchema, gql } from 'apollo-server-express';
+import { makeExecutableSchema } from 'apollo-server-express';
 import { graphql } from 'graphql';
 
-import { typeDefs, resolvers } from './gqlServer.ts';
+import { typeDefs, resolvers } from './gqlServer';
 import * as ffMockService from './__mocks__/dynamodb';
 
 const allCharactersTestCase = {
   id: 'All Characters',
-  query: gql`
+  query: `
     query {
       characters {
         id
@@ -35,7 +35,7 @@ describe('gql test cases', () => {
     const { id, query, variables, context, expected } = testCase;
     it(`query ${id}`, async done => {
       const result = await graphql(schema, query, null, context, variables);
-      expect(result).toEqual(expected);
+      expect(result.data.characters).toEqual(expected);
       done();
     });
   });
